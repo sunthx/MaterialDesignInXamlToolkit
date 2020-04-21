@@ -18,18 +18,25 @@ namespace MaterialDesignThemes.Wpf
 
             public bool IsEmpty() => string.IsNullOrEmpty(_textBox.Text);
 
+            public bool IsFocused() => _textBox.IsKeyboardFocused;
+
             public event EventHandler ContentChanged;
             public event EventHandler IsVisibleChanged;
             public event EventHandler Loaded;
+            public event EventHandler FocusedChanged;
 
             public TextBoxHintProxy(TextBox textBox)
             {
-                if (textBox == null) throw new ArgumentNullException(nameof(textBox));
-
-                _textBox = textBox;
+                _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
                 _textBox.TextChanged += TextBoxTextChanged;
                 _textBox.Loaded += TextBoxLoaded;
                 _textBox.IsVisibleChanged += TextBoxIsVisibleChanged;
+                _textBox.IsKeyboardFocusedChanged += TextBoxIsKeyboardFocusedChanged;
+            }
+
+            private void TextBoxIsKeyboardFocusedChanged(object sender, DependencyPropertyChangedEventArgs e)
+            {
+                FocusedChanged?.Invoke(sender, EventArgs.Empty);
             }
 
             private void TextBoxIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -52,6 +59,7 @@ namespace MaterialDesignThemes.Wpf
                 _textBox.TextChanged -= TextBoxTextChanged;
                 _textBox.Loaded -= TextBoxLoaded;
                 _textBox.IsVisibleChanged -= TextBoxIsVisibleChanged;
+                _textBox.IsKeyboardFocusedChanged -= TextBoxIsKeyboardFocusedChanged;
             }
         }
     }

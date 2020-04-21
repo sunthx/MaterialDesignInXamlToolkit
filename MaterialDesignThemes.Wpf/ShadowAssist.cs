@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using System.Windows.Navigation;
 
 namespace MaterialDesignThemes.Wpf
 {
@@ -15,6 +14,17 @@ namespace MaterialDesignThemes.Wpf
         Depth3,
         Depth4,
         Depth5
+    }
+
+    [Flags]
+    public enum ShadowEdges
+    {
+        None = 0,
+        Left = 1,
+        Top = 2,
+        Right = 4,
+        Bottom = 8,
+        All = Left | Top | Right | Bottom
     }
 
     internal class ShadowLocalInfo
@@ -30,7 +40,7 @@ namespace MaterialDesignThemes.Wpf
     public static class ShadowAssist
     {
         public static readonly DependencyProperty ShadowDepthProperty = DependencyProperty.RegisterAttached(
-            "ShadowDepth", typeof (ShadowDepth), typeof (ShadowAssist), new FrameworkPropertyMetadata(default(ShadowDepth), FrameworkPropertyMetadataOptions.AffectsRender));
+            "ShadowDepth", typeof(ShadowDepth), typeof(ShadowAssist), new FrameworkPropertyMetadata(default(ShadowDepth), FrameworkPropertyMetadataOptions.AffectsRender));
 
         public static void SetShadowDepth(DependencyObject element, ShadowDepth value)
         {
@@ -39,11 +49,11 @@ namespace MaterialDesignThemes.Wpf
 
         public static ShadowDepth GetShadowDepth(DependencyObject element)
         {
-            return (ShadowDepth) element.GetValue(ShadowDepthProperty);
+            return (ShadowDepth)element.GetValue(ShadowDepthProperty);
         }
 
         private static readonly DependencyPropertyKey LocalInfoPropertyKey = DependencyProperty.RegisterAttachedReadOnly(
-            "LocalInfo", typeof (ShadowLocalInfo), typeof (ShadowAssist), new PropertyMetadata(default(ShadowLocalInfo)));
+            "LocalInfo", typeof(ShadowLocalInfo), typeof(ShadowAssist), new PropertyMetadata(default(ShadowLocalInfo)));
 
         private static void SetLocalInfo(DependencyObject element, ShadowLocalInfo value)
         {
@@ -52,11 +62,11 @@ namespace MaterialDesignThemes.Wpf
 
         private static ShadowLocalInfo GetLocalInfo(DependencyObject element)
         {
-            return (ShadowLocalInfo) element.GetValue(LocalInfoPropertyKey.DependencyProperty);
+            return (ShadowLocalInfo)element.GetValue(LocalInfoPropertyKey.DependencyProperty);
         }
 
         public static readonly DependencyProperty DarkenProperty = DependencyProperty.RegisterAttached(
-            "Darken", typeof (bool), typeof (ShadowAssist), new FrameworkPropertyMetadata(default(bool), FrameworkPropertyMetadataOptions.AffectsRender, DarkenPropertyChangedCallback));
+            "Darken", typeof(bool), typeof(ShadowAssist), new FrameworkPropertyMetadata(default(bool), FrameworkPropertyMetadataOptions.AffectsRender, DarkenPropertyChangedCallback));
 
         private static void DarkenPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
@@ -65,7 +75,7 @@ namespace MaterialDesignThemes.Wpf
 
             if (dropShadowEffect == null) return;
 
-            if ((bool) dependencyPropertyChangedEventArgs.NewValue)
+            if ((bool)dependencyPropertyChangedEventArgs.NewValue)
             {
                 SetLocalInfo(dependencyObject, new ShadowLocalInfo(dropShadowEffect.Opacity));
 
@@ -73,7 +83,7 @@ namespace MaterialDesignThemes.Wpf
                 {
                     FillBehavior = FillBehavior.HoldEnd
                 };
-                dropShadowEffect.BeginAnimation(DropShadowEffect.OpacityProperty, doubleAnimation);                
+                dropShadowEffect.BeginAnimation(DropShadowEffect.OpacityProperty, doubleAnimation);
             }
             else
             {
@@ -95,7 +105,7 @@ namespace MaterialDesignThemes.Wpf
 
         public static bool GetDarken(DependencyObject element)
         {
-            return (bool) element.GetValue(DarkenProperty);
+            return (bool)element.GetValue(DarkenProperty);
         }
 
         public static readonly DependencyProperty CacheModeProperty = DependencyProperty.RegisterAttached(
@@ -111,5 +121,17 @@ namespace MaterialDesignThemes.Wpf
             return (CacheMode)element.GetValue(CacheModeProperty);
         }
 
+        public static readonly DependencyProperty ShadowEdgesProperty = DependencyProperty.RegisterAttached(
+            "ShadowEdges", typeof(ShadowEdges), typeof(ShadowAssist), new PropertyMetadata(ShadowEdges.All));
+
+        public static void SetShadowEdges(DependencyObject element, ShadowEdges value)
+        {
+            element.SetValue(ShadowEdgesProperty, value);
+        }
+
+        public static ShadowEdges GetShadowEdges(DependencyObject element)
+        {
+            return (ShadowEdges)element.GetValue(ShadowEdgesProperty);
+        }
     }
 }

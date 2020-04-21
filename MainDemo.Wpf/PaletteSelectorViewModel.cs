@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using MaterialDesignColors.WpfExample.Domain;
+﻿using MaterialDesignColors.WpfExample.Domain;
 using MaterialDesignThemes.Wpf;
+using System;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace MaterialDesignColors.WpfExample
 {
@@ -16,14 +10,14 @@ namespace MaterialDesignColors.WpfExample
     {
         public PaletteSelectorViewModel()
         {
-            Swatches = new SwatchesProvider().Swatches;            
+            Swatches = new SwatchesProvider().Swatches;
         }
 
         public ICommand ToggleBaseCommand { get; } = new AnotherCommandImplementation(o => ApplyBase((bool)o));
 
         private static void ApplyBase(bool isDark)
         {
-            new PaletteHelper().SetLightDark(isDark);
+            ModifyTheme(theme => theme.SetBaseTheme(isDark ? Theme.Dark : Theme.Light));
         }
 
         public IEnumerable<Swatch> Swatches { get; }
@@ -32,14 +26,24 @@ namespace MaterialDesignColors.WpfExample
 
         private static void ApplyPrimary(Swatch swatch)
         {
-            new PaletteHelper().ReplacePrimaryColor(swatch);
+            ModifyTheme(theme => theme.SetPrimaryColor(swatch.ExemplarHue.Color));
         }
 
         public ICommand ApplyAccentCommand { get; } = new AnotherCommandImplementation(o => ApplyAccent((Swatch)o));
 
         private static void ApplyAccent(Swatch swatch)
         {
-            new PaletteHelper().ReplaceAccentColor(swatch);
+            ModifyTheme(theme => theme.SetSecondaryColor(swatch.AccentExemplarHue.Color));
+        }
+
+        private static void ModifyTheme(Action<ITheme> modificationAction)
+        {
+            PaletteHelper paletteHelper = new PaletteHelper();
+            ITheme theme = paletteHelper.GetTheme();
+
+            modificationAction?.Invoke(theme);
+
+            paletteHelper.SetTheme(theme);
         }
     }
 }

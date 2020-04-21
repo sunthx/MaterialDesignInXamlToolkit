@@ -1,7 +1,6 @@
 Shouldly
 xunit
-xunit.abstractions
-xunit.assert
-xunit.core
-xunit.extensibility.core
-xunit.extensibility.execution
+xunit.runner.visualstudio
+System.Data.DataSetExtensions
+Microsoft.CSharp
+System.Net.Http

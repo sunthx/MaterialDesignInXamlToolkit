@@ -1,15 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using MaterialDesignDemo.Domain;
 
 namespace MaterialDesignColors.WpfExample.Domain
 {
+    public class TreeExampleSimpleTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate PlanetTemplate { get; set; }
+
+        public DataTemplate SolarSystemTemplate { get; set; }
+
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            if (item is Planet)
+                return PlanetTemplate;
+
+            if (item?.ToString() == "Solar System")
+                return SolarSystemTemplate;
+
+            return TreeViewAssist.SuppressAdditionalTemplate;
+        }
+    }
+
     public sealed class Movie
     {
         public Movie(string name, string director)
@@ -21,6 +38,17 @@ namespace MaterialDesignColors.WpfExample.Domain
         public string Name { get; }
 
         public string Director { get; }
+    }
+
+    public class Planet
+    {
+        public string Name { get; set; }
+
+        public double DistanceFromSun { get; set; }
+
+        public double DistanceFromEarth { get; set; }
+
+        public double Velocity { get; set; }
     }
 
     public sealed class MovieCategory
@@ -59,13 +87,13 @@ namespace MaterialDesignColors.WpfExample.Domain
         {
             MovieCategories = new ObservableCollection<MovieCategory>
             {
-                new MovieCategory("Action",                
+                new MovieCategory("Action",
                     new Movie ("Predator", "John McTiernan"),
                     new Movie("Alien", "Ridley Scott"),
                     new Movie("Prometheus", "Ridley Scott")),
                 new MovieCategory("Comedy",
                     new Movie("EuroTrip", "Jeff Schaffer"),
-                    new Movie("EuroTrip", "Jeff Schaffer")                                            
+                    new Movie("EuroTrip", "Jeff Schaffer")
                 )
             };
 
@@ -109,7 +137,7 @@ namespace MaterialDesignColors.WpfExample.Domain
 
             return string.Join(string.Empty,
                 Enumerable.Range(0, length)
-                .Select(v => (char) random.Next('a', 'z' + 1)));
+                .Select(v => (char)random.Next('a', 'z' + 1)));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

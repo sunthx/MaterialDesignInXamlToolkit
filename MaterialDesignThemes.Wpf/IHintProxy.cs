@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace MaterialDesignThemes.Wpf
@@ -15,11 +11,17 @@ namespace MaterialDesignThemes.Wpf
     public interface IHintProxy : IDisposable
     {
         /// <summary>
-        /// Checks to see if the targetted control can be deemed as logically 
+        /// Checks to see if the targeted control can be deemed as logically 
         /// empty, even if not null, affecting the current hint display.
         /// </summary>
         /// <returns></returns>
         bool IsEmpty();
+
+        /// <summary>
+        /// Targeted control has keyboard focus
+        /// </summary>
+        /// <returns></returns>
+        bool IsFocused();
 
         [Obsolete]
         object Content { get; }
@@ -33,5 +35,7 @@ namespace MaterialDesignThemes.Wpf
         event EventHandler IsVisibleChanged;
 
         event EventHandler Loaded;
+
+        event EventHandler FocusedChanged;
     }
 }

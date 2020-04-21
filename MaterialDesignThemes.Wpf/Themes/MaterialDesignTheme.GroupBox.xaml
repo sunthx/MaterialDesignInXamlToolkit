@@ -34,7 +34,13 @@
                     <Grid>
                         <Border Background="{TemplateBinding Background}" BorderBrush="{Binding Path=Background, ElementName=PART_ColorZone}" BorderThickness="{TemplateBinding BorderThickness}" />
                         <DockPanel Background="{TemplateBinding Background}">
-                            <wpf:ColorZone UseLayoutRounding="True" x:Name="PART_ColorZone" DockPanel.Dock="Top" Padding="{TemplateBinding Padding}" Effect="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ShadowAssist.ShadowDepth), Converter={x:Static converters:ShadowConverter.Instance}}" Mode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Mode)}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                            <wpf:ColorZone UseLayoutRounding="True" x:Name="PART_ColorZone" DockPanel.Dock="Top" Padding="{TemplateBinding Padding}" 
+                                           Effect="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ShadowAssist.ShadowDepth), Converter={x:Static converters:ShadowConverter.Instance}}"
+                                           wpf:ShadowAssist.ShadowEdges="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ShadowAssist.ShadowEdges)}"
+                                           Mode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Mode)}"
+                                           wpf:ColorZoneAssist.Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Background)}"
+                                           wpf:ColorZoneAssist.Foreground="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Foreground)}"
+                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
                                 <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                   ContentStringFormat="{TemplateBinding HeaderStringFormat}"
                                                   ContentTemplate="{TemplateBinding HeaderTemplate}"

@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
@@ -25,7 +26,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="MaterialDesignActionCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignActionToggleButton}" />    
+    <Style x:Key="MaterialDesignActionCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignActionToggleButton}" />
 
     <Style x:Key="MaterialDesignActionLightCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignActionCheckBox}">
         <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
@@ -85,7 +86,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Viewbox Width="18" Height="18"  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        <Viewbox Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:CheckBoxAssist.CheckBoxSize)}"
+                                 Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:CheckBoxAssist.CheckBoxSize)}"
+                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                  FlowDirection="LeftToRight">
                             <Canvas Width="24" Height="24">
                                 <Path x:Name="Graphic"
@@ -114,18 +117,18 @@
                             <Setter Property="FocusVisualStyle" Value="{StaticResource OptionMarkFocusVisual}"/>
                             <Setter Property="Padding" Value="4,2,0,0"/>
                         </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Fill" TargetName="Graphic" Value="{DynamicResource MaterialDesignCheckBoxDisabled}" />
-                            <Setter Property="Opacity" Value="0.26"/>
-                        </Trigger>
                         <Trigger Property="IsPressed" Value="true"/>
                         <Trigger Property="IsChecked" Value="true">
                             <Setter Property="Data" TargetName="Graphic" Value="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
                             <Setter Property="Fill" TargetName="Graphic" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Background}" />
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Fill" TargetName="Graphic" Value="{DynamicResource MaterialDesignCheckBoxDisabled}" />
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
                         <Trigger Property="IsChecked" Value="{x:Null}">
-                            <Setter Property="Data" TargetName="Graphic" Value="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
-                            <Setter Property="Opacity" TargetName="Graphic" Value="0.56"/>
+                            <Setter Property="Data" TargetName="Graphic" Value="M6,13L6,11L18,11L18,13M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
+                            <Setter Property="Fill" TargetName="Graphic" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Background}" />
                         </Trigger>
                         <Trigger Property="Validation.HasError" Value="true">
                             <Setter Property="Fill" TargetName="Graphic" Value="{DynamicResource ValidationErrorBrush}" />
@@ -136,28 +139,26 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="MaterialDesignLightCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignCheckBox}">
         <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueLightBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}"/>
     </Style>
 
     <Style x:Key="MaterialDesignDarkCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignCheckBox}">
         <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueDarkBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryHueDarkForegroundBrush}"/>
     </Style>
 
     <Style x:Key="MaterialDesignAccentCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource MaterialDesignCheckBox}">
         <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SecondaryAccentBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryAccentForegroundBrush}"/>
     </Style>
 
     <Style x:Key="MaterialDesignUserForegroundCheckBox" TargetType="{x:Type CheckBox}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"/>
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource MaterialDesignValidationErrorTemplate}"/>
         <Setter Property="Template">
@@ -192,12 +193,14 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Viewbox Width="18" Height="18"  VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <Viewbox Width="18" Height="18"  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                 FlowDirection="LeftToRight">
                             <Canvas Width="24" Height="24">
                                 <Path x:Name="Graphic"
                                       Data="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z" 
-                                      Fill="{TemplateBinding Foreground}" />
-                                <Ellipse x:Name="InteractionEllipse" Fill="{TemplateBinding Foreground}" Width="0" Height="0" Canvas.Top="12" Canvas.Left="12" Opacity="0" RenderTransformOrigin="0.5,0.5" >
+                                      Fill="{TemplateBinding Foreground}"/>
+                                <Ellipse x:Name="InteractionEllipse" Fill="{TemplateBinding Foreground}" Width="0" Height="0" Canvas.Top="12" Canvas.Left="12" Opacity="0" RenderTransformOrigin="0.5,0.5"
+                                         IsHitTestVisible="False">
                                     <Ellipse.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform/>
@@ -224,7 +227,7 @@
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true"/>
                         <Trigger Property="IsChecked" Value="true">
-                            <Setter Property="Data" TargetName="Graphic" Value="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />                            
+                            <Setter Property="Data" TargetName="Graphic" Value="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="{x:Null}">
                             <Setter Property="Data" TargetName="Graphic" Value="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z" />

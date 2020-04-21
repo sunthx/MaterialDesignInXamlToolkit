@@ -10,9 +10,13 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="{x:Static GridView.GridViewScrollViewerStyleKey}" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="CanContentScroll" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <ControlTemplate.Resources>
+                        <converters:HorizontalThicknessConverter x:Key="HorizontalThicknessConverter" />
+                    </ControlTemplate.Resources>
                     <Grid Background="{TemplateBinding Background}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -41,7 +45,7 @@
                                                                 Columns="{Binding Path=TemplatedParent.View.Columns, RelativeSource={RelativeSource TemplatedParent}}"
                                                                 SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                         <!-- NB: Rectangle added to keep the width of the header ScrollViewer the same size as the list items -->
-                                        <Rectangle Margin="{Binding RelativeSource={RelativeSource Self}, Path=(wpf:ListViewAssist.ListViewItemPadding)}" />
+                                        <Rectangle Margin="{Binding RelativeSource={RelativeSource Self}, Path=(wpf:ListViewAssist.ListViewItemPadding), Converter={StaticResource HorizontalThicknessConverter}}" />
                                     </StackPanel>
                                 </Border>
 
@@ -87,9 +91,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="GridViewColumnHeader">
                     <DockPanel>
-                        <Thumb x:Name="PART_HeaderGripper"
-                               DockPanel.Dock="Right"
-                               Style="{StaticResource MaterialDesignGridColumnHeaderGripper}" />
+                        <wpf:GridViewColumnThumb x:Name="PART_HeaderGripper"
+                                                 DockPanel.Dock="Right"
+                                                 Margin="0,0,-8,0"
+                                                 Style="{StaticResource MaterialDesignGridViewColumnHeaderGripper}" />
                         <Border x:Name="HeaderBorder"
                                 Padding="{TemplateBinding Padding}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
@@ -227,7 +232,6 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="ItemContainerStyle" Value="{Binding RelativeSource={RelativeSource Self}, Path=View, Converter={StaticResource MaterialDesignListViewItemContainerStyleConverter}}" />
-        <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
         <Setter Property="ScrollViewer.PanningMode" Value="Both" />
         <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
         <Setter Property="SnapsToDevicePixels" Value="True" />

@@ -30,7 +30,7 @@ namespace MaterialDesignThemes.Wpf
             private readonly ManualResetEvent _disposedWaitHandle = new ManualResetEvent(false);
             private Action _cleanUp;
             private bool _isWaitHandleDisposed;
-            private readonly object _waitHandleGate = new object();            
+            private readonly object _waitHandleGate = new object();
 
             public MouseNotOverManagedWaitHandle(UIElement uiElement)
             {
@@ -78,7 +78,7 @@ namespace MaterialDesignThemes.Wpf
 
                 }).ContinueWith(t =>
                 {
-                    if (((UIElement) sender).IsMouseOver) return;
+                    if (((UIElement)sender).IsMouseOver) return;
                     lock (_waitHandleGate)
                     {
                         if (!_isWaitHandleDisposed)
@@ -124,7 +124,7 @@ namespace MaterialDesignThemes.Wpf
 
                 Task.Factory.StartNew(() =>
                 {
-                    //keep upping the completion time in case it's paused...                
+                    //keep upping the completion time in case it's paused...
                     while (DateTime.Now < _completionTime && !ceaseWaitHandle.WaitOne(granularity))
                     {
                         if (pausedWaitHandle.WaitOne(TimeSpan.Zero))
@@ -185,6 +185,12 @@ namespace MaterialDesignThemes.Wpf
             };
         }
 
+        /// <summary>
+        /// Gets or sets a value that indicates whether this message queue displays messages without discarding duplicates. 
+        /// True to show every message even if there are duplicates.
+        /// </summary>
+        public bool IgnoreDuplicate { get; set; }
+
         public void Enqueue(object content)
         {
             Enqueue(content, false);
@@ -194,8 +200,7 @@ namespace MaterialDesignThemes.Wpf
         {
             if (content == null) throw new ArgumentNullException(nameof(content));
 
-            _snackbarMessages.AddLast(new SnackbarMessageQueueItem(content));
-            _messageWaitingEvent.Set();
+            Enqueue(content, null, null, null, false, neverConsiderToBeDuplicate);
         }
 
         public void Enqueue(object content, object actionContent, Action actionHandler)
@@ -206,34 +211,52 @@ namespace MaterialDesignThemes.Wpf
         public void Enqueue(object content, object actionContent, Action actionHandler, bool promote)
         {
             if (content == null) throw new ArgumentNullException(nameof(content));
+            if (actionContent == null) throw new ArgumentNullException(nameof(actionContent));
+            if (actionHandler == null) throw new ArgumentNullException(nameof(actionHandler));
 
-            _snackbarMessages.AddLast(new SnackbarMessageQueueItem(content, actionContent, actionHandler));
-            _messageWaitingEvent.Set();
+            Enqueue(content, actionContent, _ => actionHandler(), promote, false, false);
         }
 
         public void Enqueue<TArgument>(object content, object actionContent, Action<TArgument> actionHandler,
             TArgument actionArgument)
         {
-            Enqueue<TArgument>(content, actionContent, actionHandler, actionArgument, false);
+            Enqueue(content, actionContent, actionHandler, actionArgument, false, false);
         }
 
         public void Enqueue<TArgument>(object content, object actionContent, Action<TArgument> actionHandler,
-            TArgument actionArgument, bool promote)
+            TArgument actionArgument, bool promote) =>
+            Enqueue(content, actionContent, actionHandler, actionArgument, promote, promote);
+
+        public void Enqueue<TArgument>(object content, object actionContent, Action<TArgument> actionHandler,
+            TArgument actionArgument, bool promote, bool neverConsiderToBeDuplicate, TimeSpan? durationOverride = null)
         {
             if (content == null) throw new ArgumentNullException(nameof(content));
 
-            if ((actionContent != null || actionHandler != null || actionArgument != null)
-                &&
-                actionContent == null && actionHandler == null && actionArgument == null)
+            if (actionContent == null ^ actionHandler == null)
             {
                 throw new ArgumentException("All action arguments must be provided if any are provided.",
-                    nameof(actionContent));
+                    actionContent != null ? nameof(actionContent) : nameof(actionHandler));
             }
 
-            var argumentType = actionArgument != null ? typeof(TArgument) : null;
+            Action<object> handler = actionHandler != null
+                ? new Action<object>(argument => actionHandler((TArgument)argument))
+                : null;
+            Enqueue(content, actionContent, handler, actionArgument, promote, neverConsiderToBeDuplicate);
+        }
 
-            var snackbarMessageQueueItem = new SnackbarMessageQueueItem(content, actionContent, actionHandler,
-                actionArgument, argumentType, promote);
+        public void Enqueue(object content, object actionContent, Action<object> actionHandler,
+            object actionArgument, bool promote, bool neverConsiderToBeDuplicate, TimeSpan? durationOverride = null)
+        {
+            if (content == null) throw new ArgumentNullException(nameof(content));
+
+            if (actionContent == null ^ actionHandler == null)
+            {
+                throw new ArgumentException("All action arguments must be provided if any are provided.",
+                    actionContent != null ? nameof(actionContent) : nameof(actionHandler));
+            }
+
+            var snackbarMessageQueueItem = new SnackbarMessageQueueItem(content, durationOverride ?? _messageDuration,
+                actionContent, actionHandler, actionArgument, promote, neverConsiderToBeDuplicate);
             if (promote)
                 InsertAsLastNotPromotedNode(snackbarMessageQueueItem);
             else
@@ -261,7 +284,7 @@ namespace MaterialDesignThemes.Wpf
         {
             while (!_isDisposed)
             {
-                var eventId = WaitHandle.WaitAny(new WaitHandle[] {_disposedEvent, _messageWaitingEvent});
+                var eventId = WaitHandle.WaitAny(new WaitHandle[] { _disposedEvent, _messageWaitingEvent });
                 if (eventId == 0) continue;
                 var exemplar = _pairedSnackbars.FirstOrDefault();
                 if (exemplar == null)
@@ -281,10 +304,11 @@ namespace MaterialDesignThemes.Wpf
                     var message = _snackbarMessages.First.Value;
                     _snackbarMessages.RemoveFirst();
                     if (_latestShownItem == null
-                        || message.IsPromoted
+                        || IgnoreDuplicate
+                        || message.IgnoreDuplicate
                         || !Equals(_latestShownItem.Item1.Content, message.Content)
                         || !Equals(_latestShownItem.Item1.ActionContent, message.ActionContent)
-                        || _latestShownItem.Item2 <= DateTime.Now.Subtract(_messageDuration))
+                        || _latestShownItem.Item2 <= DateTime.Now.Subtract(_latestShownItem.Item1.Duration))
                     {
                         await ShowAsync(snackbar, message);
                         _latestShownItem = new Tuple<SnackbarMessageQueueItem, DateTime>(message, DateTime.Now);
@@ -311,7 +335,7 @@ namespace MaterialDesignThemes.Wpf
                 {
                     if (!sb.IsLoaded || sb.Visibility != Visibility.Visible) return false;
                     var window = Window.GetWindow(sb);
-                    return window != null && window.WindowState != WindowState.Minimized;
+                    return window?.WindowState != WindowState.Minimized;
                 });
             });
         }
@@ -327,11 +351,11 @@ namespace MaterialDesignThemes.Wpf
                             snackbar.Dispatcher.InvokeAsync(
                                 () => CreateAndShowMessage(snackbar, messageQueueItem, actionClickWaitHandle));
                     var durationPassedWaitHandle = new ManualResetEvent(false);
-                    DurationMonitor.Start(_messageDuration.Add(snackbar.ActivateStoryboardDuration),
+                    DurationMonitor.Start(messageQueueItem.Duration.Add(snackbar.ActivateStoryboardDuration),
                         _pausedEvent, durationPassedWaitHandle, _disposedEvent);
 
                     //wait until time span completed (including pauses and mouse overs), or the action is clicked
-                    await WaitForCompletionAsync(mouseNotOverManagedWaitHandle, durationPassedWaitHandle, actionClickWaitHandle);                    
+                    await WaitForCompletionAsync(mouseNotOverManagedWaitHandle, durationPassedWaitHandle, actionClickWaitHandle);
 
                     //close message on snackbar
                     await
@@ -399,18 +423,8 @@ namespace MaterialDesignThemes.Wpf
         {
             try
             {
-                var action = messageQueueItem.ActionHandler as Action;
-                if (action != null)
-                {
-                    action();
-                    return;
-                }
+                messageQueueItem.ActionHandler(messageQueueItem.ActionArgument);
 
-                if (messageQueueItem.ArgumentType == null) return;
-
-                var genericType = typeof(Action<>).MakeGenericType(messageQueueItem.ArgumentType);
-                var method = genericType.GetMethod("Invoke");
-                method.Invoke(messageQueueItem.ActionHandler, new[] { messageQueueItem.ActionArgument });
             }
             catch (Exception exc)
             {
@@ -419,7 +433,7 @@ namespace MaterialDesignThemes.Wpf
                 Trace.WriteLine(exc.StackTrace);
 
                 throw;
-            }            
+            }
         }
 
         private static SnackbarMessage Create(SnackbarMessageQueueItem messageQueueItem)
@@ -433,10 +447,10 @@ namespace MaterialDesignThemes.Wpf
 
         public void Dispose()
         {
-            _isDisposed = true;                  
+            _isDisposed = true;
             _disposedEvent.Set();
             _disposedEvent.Dispose();
-            _pausedEvent.Dispose();            
+            _pausedEvent.Dispose();
         }
     }
 }

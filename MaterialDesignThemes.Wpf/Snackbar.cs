@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Markup;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -35,7 +28,7 @@ namespace MaterialDesignThemes.Wpf
 
         public SnackbarMessage Message
         {
-            get { return (SnackbarMessage) GetValue(MessageProperty); }
+            get { return (SnackbarMessage)GetValue(MessageProperty); }
             set { SetValue(MessageProperty, value); }
         }
 
@@ -44,15 +37,15 @@ namespace MaterialDesignThemes.Wpf
 
         private static void MessageQueuePropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
-            var snackbar = (Snackbar) dependencyObject;
-            (snackbar._messageQueueRegistrationCleanUp ?? (() => { }))();            
+            var snackbar = (Snackbar)dependencyObject;
+            (snackbar._messageQueueRegistrationCleanUp ?? (() => { }))();
             var messageQueue = dependencyPropertyChangedEventArgs.NewValue as SnackbarMessageQueue;
             snackbar._messageQueueRegistrationCleanUp = messageQueue?.Pair(snackbar);
         }
 
         public SnackbarMessageQueue MessageQueue
         {
-            get { return (SnackbarMessageQueue) GetValue(MessageQueueProperty); }
+            get { return (SnackbarMessageQueue)GetValue(MessageQueueProperty); }
             set { SetValue(MessageQueueProperty, value); }
         }
 
@@ -61,7 +54,7 @@ namespace MaterialDesignThemes.Wpf
 
         public bool IsActive
         {
-            get { return (bool) GetValue(IsActiveProperty); }
+            get { return (bool)GetValue(IsActiveProperty); }
             set { SetValue(IsActiveProperty, value); }
         }
 
@@ -83,10 +76,11 @@ namespace MaterialDesignThemes.Wpf
         {
             var instance = d as Snackbar;
             var args = new RoutedPropertyChangedEventArgs<bool>(
-                (bool) e.OldValue,
-                (bool) e.NewValue) {RoutedEvent = IsActiveChangedEvent };
+                (bool)e.OldValue,
+                (bool)e.NewValue)
+            { RoutedEvent = IsActiveChangedEvent };
             instance?.RaiseEvent(args);
-        }        
+        }
 
         public static readonly RoutedEvent DeactivateStoryboardCompletedEvent =
             EventManager.RegisterRoutedEvent(
@@ -117,7 +111,7 @@ namespace MaterialDesignThemes.Wpf
 
         public Style ActionButtonStyle
         {
-            get { return (Style) GetValue(ActionButtonStyleProperty); }
+            get { return (Style)GetValue(ActionButtonStyleProperty); }
             set { SetValue(ActionButtonStyleProperty, value); }
         }
 
@@ -134,9 +128,9 @@ namespace MaterialDesignThemes.Wpf
 
             ActivateStoryboardDuration = GetStoryboardResourceDuration(ActivateStoryboardName);
             DeactivateStoryboardDuration = GetStoryboardResourceDuration(DeactivateStoryboardName);
-            
+
             base.OnApplyTemplate();
-        }        
+        }
 
         private TimeSpan GetStoryboardResourceDuration(string resourceName)
         {
@@ -169,16 +163,16 @@ namespace MaterialDesignThemes.Wpf
                 Interval = snackbar.DeactivateStoryboardDuration
             };
             dispatcherTimer.Tick += DeactivateStoryboardDispatcherTimerOnTick;
-            dispatcherTimer.Start();            
+            dispatcherTimer.Start();
         }
 
         private static void DeactivateStoryboardDispatcherTimerOnTick(object sender, EventArgs eventArgs)
         {
             var dispatcherTimer = (DispatcherTimer)sender;
-            dispatcherTimer.Stop(); 
+            dispatcherTimer.Stop();
             dispatcherTimer.Tick -= DeactivateStoryboardDispatcherTimerOnTick;
             var source = (Tuple<Snackbar, SnackbarMessage>)dispatcherTimer.Tag;
             OnDeactivateStoryboardCompleted(source.Item1, source.Item2);
         }
-    }    
+    }
 }
